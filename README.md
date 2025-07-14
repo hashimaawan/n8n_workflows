@@ -1,6 +1,6 @@
 #  n8n AI Agents Workflows
 
-A curated collection of intelligent, ready-to-use **n8n workflows** powered by AI models such as **Google Gemini**. These workflows are designed to automate real-world use cases like email classification, auto-responses, customer support handling, meeting scheduling, and more.
+A collection of intelligent, ready-to-use **n8n workflows** powered by AI models . These workflows are designed to automate real-world use cases like email classification, auto-responses, customer support handling, meeting scheduling, and more.
 
 ---
 
