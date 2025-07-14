@@ -16,7 +16,7 @@ This repository contains smart agents built with n8n’s low-code environment an
 
 - [n8n](https://n8n.io/) (Self-hosted or Desktop version)
 - A [Google Gemini API Key](https://aistudio.google.com/app/apikey)
-- Gmail or any email integration (OAuth setup recommended)
+- Gmail or any email integration 
 
 ## 🧪 How to Use
 
