@@ -1,0 +1,275 @@
+{
+  "name": "Email Responder",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -40,
+        80
+      ],
+      "id": "eaafc742-ec5f-4333-b6ca-947b77d031ac",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iuTMcWXXvevla8mD",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.text }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Internship Request",
+              "description": "Emails where the sender is expressing interest in an internship opportunity, often including their background, skills, or resume, and asking if there are open positions"
+            },
+            {
+              "category": "Meeting Request",
+              "description": "Emails that propose scheduling a meeting or discussion, either virtual or in-person, often suggesting dates or asking for availability."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        300,
+        80
+      ],
+      "id": "e0365380-9141-41f3-949a-5087b88dcc89",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=\nIf the sender is requesting an internship — for example, expressing interest in joining the organization as an intern, sharing their background, or inquiring about available opportunities — then:\n\n1. Classify it as: **Internship Request**\n2. Write a polite and professional reply, thanking the sender for their interest and explaining whether or not opportunities are currently available.\n\nOnly generate the classification and response.\nwrite the response email.\n {{ $('Gmail Trigger').item.json.text }}",
+              "role": "system"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        800,
+        -40
+      ],
+      "id": "95314fb1-380f-4918-ad7f-f7928749d065",
+      "name": "Message a model",
+      "alwaysOutputData": false,
+      "credentials": {
+        "openAiApi": {
+          "id": "JN1FMiJ5lohK4kBr",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        300,
+        220
+      ],
+      "id": "2187686c-5bcb-4a36-b2b5-0f082351840c",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "JN1FMiJ5lohK4kBr",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json[\"message\"][\"content\"][\"response\"].match(/Subject:\\s*(.+?)\\n/)[1] }}\n",
+        "message": "={{ $json[\"message\"][\"content\"][\"response\"].split('\\n').slice(2).join('\\n') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1260,
+        -40
+      ],
+      "id": "ff0d4528-2af9-47f2-a515-a3637020bfdc",
+      "name": "Create a draft",
+      "webhookId": "f285cdf8-3ec9-4842-969c-c9dd55cd114f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iuTMcWXXvevla8mD",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Read the following email at then ed.\n\nIf the sender is requesting a meeting, scheduling a call, or proposing a time to connect — whether for a discussion, interview, demo, or collaboration — then:\n\nWrite a polite and professional reply that confirms or proposes an alternate time, acknowledges their request, and includes any relevant details.\n\nOnly generate the following:\n\nCategory: Meeting Request\nResponse: <your reply here>\n\n {{ $json.text }}",
+              "role": "system"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        800,
+        200
+      ],
+      "id": "53e5e26b-4f96-4b5d-8d85-f4859324430d",
+      "name": "Message a model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "JN1FMiJ5lohK4kBr",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.message.content.Category }}",
+        "message": "={{ $json.message.content.Response }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1280,
+        200
+      ],
+      "id": "2b88d49e-c0ac-4f11-b9ed-fe8ff2eae186",
+      "name": "Create a draft1",
+      "webhookId": "73693529-fd5f-4c1a-9f7f-296c2deecf81",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iuTMcWXXvevla8mD",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Create a draft1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f6db5b52-9701-40e3-9e82-cbc678ce2005",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca458424d246ffe8eb59dc519d44cbe665eefc8f94b1412d794bb23c53d33fda"
+  },
+  "id": "Duw1sPBAzGHuOAWH",
+  "tags": []
+}
