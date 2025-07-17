@@ -1,0 +1,316 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Testing Post Creation",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Topic"
+            },
+            {
+              "fieldLabel": "Audience"
+            },
+            {
+              "fieldLabel": "Platform"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "19fc4c62-80b8-4136-a0ef-4771baf93cc7",
+      "name": "On form submission",
+      "webhookId": "5cdf7e04-74c9-4088-9ff7-b0262c58ba23"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        160,
+        340
+      ],
+      "id": "cad2ef46-6bc6-4ee2-9f6e-bb8fe478bf48",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "JN1FMiJ5lohK4kBr",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Topic of Research: {{ $json.Topic }}\nAudience: {{ $json.Audience }}\nPlatform to post: {{ $json.Platform }}",
+        "options": {
+          "systemMessage": "=You are a smart content strategist AI. Your job is to research the topic: \"{{ $json.Topic }}\" using the Travily Search Tool to gather the latest trends, data, or insights relevant to the subject.\n\nBased on the research results, craft a concise, engaging, and audience-targeted post.\n\nThe post should be tailored for the following:\n- 🎯 Target Audience: {{ $json.Audience }}\n- 📢 Platform: {{ $json.Platform }}\n\nInstructions:\n- Keep the tone appropriate for {{ $json.Platform }} (e.g., professional for LinkedIn, casual for Twitter/X).\n- Highlight key insights or trends from the Travily research.\n- Include a clear message, call-to-action if suitable, and hashtags if relevant.\n- Keep the post within typical length for the given platform (e.g., ~280 characters for X, a paragraph for LinkedIn).\n\nOnly output the final content-ready post — no explanations.\n\nBegin by researching the topic using Travily and then generate the post.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "e56e6926-8195-4b45-b80c-4a8d40a5d259",
+      "name": "Research Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Linkedin Post: {{ $json.output }}",
+        "options": {
+          "systemMessage": "=You are a creative assistant skilled at transforming professional content into high-quality visual concepts.\n\nYou will receive a LinkedIn post related to a specific topic, audience, and platform.\n\n🎯 Task: Convert the following LinkedIn post into a **compelling and descriptive text prompt** suitable for use with a **text-to-image generator** (e.g., DALL·E, Midjourney, or Stable Diffusion).\n\nYour visual prompt should:\n- Focus on **key themes or metaphors** in the LinkedIn post\n- Use **concrete visual elements** (e.g., futuristic hospitals, AI holograms, diverse professionals)\n- Reflect the **tone and purpose** of the post (e.g., innovative, professional, inspiring)\n- Be **vivid and specific**, around 30–70 words\n- Avoid adding text, logos, or watermarks\n\n---\n\n\n\nGenerate a visual description prompt suitable for AI image generation.\nOnly output the final visual prompt — no explanation or extras.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        580,
+        0
+      ],
+      "id": "50c90bfd-cadc-4608-9d16-4ee1f8f07ef1",
+      "name": "Post Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        620,
+        340
+      ],
+      "id": "fa75605a-80fa-493b-acdc-7b00f9b5cbcb",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "JN1FMiJ5lohK4kBr",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.together.xyz/v1/images/generations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 759a7bba616bbe6b01c8f0c456398373b05a2ad133d95b7d6512c851cf59a1c8"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "black-forest-labs/FLUX.1-schnell"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        940,
+        0
+      ],
+      "id": "a3d17e53-c803-4b8b-97dd-907789bfdc8a",
+      "name": "Generate Image"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data[0].url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1160,
+        0
+      ],
+      "id": "79324ccb-c43a-44bd-bf65-940e0e442eab",
+      "name": "Image binary"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\":{{ $json.Topic }} \"\",\n  \"auto_parameters\": false,\n  \"topic\": \"general\",\n  \"search_depth\": \"basic\",\n  \"chunks_per_source\": 3,\n  \"max_results\": 1,\n  \"time_range\": null,\n  \"days\": 7,\n  \"include_answer\": true,\n  \"include_raw_content\": true,\n  \"include_images\": false,\n  \"include_image_descriptions\": false,\n  \"include_favicon\": false,\n  \"include_domains\": [],\n  \"exclude_domains\": [],\n  \"country\": null\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        380,
+        340
+      ],
+      "id": "369496f6-dbfc-45e9-9f38-a86430d87269",
+      "name": "Travily Search"
+    },
+    {
+      "parameters": {
+        "person": "=Ahmed Ali",
+        "text": "={{ $('Research Agent').item.json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        0
+      ],
+      "id": "a8234526-c1e1-48c0-b4b7-6bdc47ac3402",
+      "name": "Create a post",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "F7vRla7nb4uxcDY9",
+          "name": "LinkedIn account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Research Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Research Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Agent": {
+      "main": [
+        [
+          {
+            "node": "Post Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Post Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Agent": {
+      "main": [
+        [
+          {
+            "node": "Generate Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image": {
+      "main": [
+        [
+          {
+            "node": "Image binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image binary": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Travily Search": {
+      "ai_tool": [
+        [
+          {
+            "node": "Research Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "290c093d-aa1c-4ba2-9ea5-6b01a346ed2f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca458424d246ffe8eb59dc519d44cbe665eefc8f94b1412d794bb23c53d33fda"
+  },
+  "id": "z9vIToveJP5QBK0J",
+  "tags": []
+}
