@@ -120,7 +120,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer "
+              "value": "Bearer YOUR API KEY HERE"
             }
           ]
         },
