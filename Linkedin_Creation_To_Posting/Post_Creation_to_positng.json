@@ -120,7 +120,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer 759a7bba616bbe6b01c8f0c456398373b05a2ad133d95b7d6512c851cf59a1c8"
+              "value": "Bearer "
             }
           ]
         },
