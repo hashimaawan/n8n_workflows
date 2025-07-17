@@ -29,6 +29,7 @@ This repository contains smart agents built with n8n’s low-code environment an
 
 ---
 🤝 Contribute
+---
 
 Want to share your own AI-driven workflows or improve existing ones? Feel free to submit a pull request or open an issue. Let’s    build a smarter automation toolkit together!
 --- 
