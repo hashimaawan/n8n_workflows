@@ -1,0 +1,318 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        620,
+        380
+      ],
+      "id": "30bc0122-47c5-47ba-be6e-d31e40743851",
+      "name": "OpenAI Job Description Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "JN1FMiJ5lohK4kBr",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Job Title:{{ $json.jobTitle }}\nDepartment: {{ $json.department }}\nExperience Level: {{ $json.experienceLevel }}\nBudget Range: {{ $json.budgetRange }}\nKey Skills: {{ $json.keySkillsRequired }}\nUrgency: {{ $json.urgencyLevel }}\nWork Location: {{ $json.worklocation }}",
+        "options": {
+          "systemMessage": "=You are an expert HR professional and job description writer. Your task is to create a comprehensive, attractive, and professional job description based on the provided requirements.\n\nCreate a complete job description that includes:\n\n📋 **Structure Requirements:**\n- Company overview section (use a generic tech company description)\n- Role summary (2-3 sentences)\n- Key responsibilities (5-7 bullet points)\n- Required qualifications (technical and soft skills)\n- Preferred qualifications \n- Benefits and perks section\n- Equal opportunity statement\n\n🎯 **Tone & Style:**\n- Professional yet engaging\n- Clear and specific language\n- Action-oriented bullet points\n- Inclusive and welcoming tone\n\n📊 **Content Guidelines:**\n- Align with experience level: {{ $json.experienceLevel }}\n- Reflect urgency level in call-to-action\n- Include work arrangement: {{ $json.worklocation }}\n- Incorporate all provided key skills naturally\n- Make it competitive within the budget range mentioned\n\n🚀 **Output:**\nProvide a ready-to-post job description that will attract top talent. Format it professionally with clear sections and bullet points.\n\nDo not include salary information explicitly - keep it as 'competitive package' or similar."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        680,
+        -20
+      ],
+      "id": "9f9dbf2b-fd6e-4e08-bea6-61ab34f8a528",
+      "name": "Job Description Generator"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        380
+      ],
+      "id": "47229efa-5f69-42cb-977a-f0bf38848d61",
+      "name": "OpenAI Screening Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "JN1FMiJ5lohK4kBr",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Job Description: {{ $json.output }}\n\nOriginal Requirements:\nJob Title: {{ $('Manual Job Requirements').item.json.jobTitle }}\nKey Skills:{{ $('Manual Job Requirements').item.json.keySkillsRequired }}\nExperience Level:{{ $('Manual Job Requirements').item.json.experienceLevel }}",
+        "options": {
+          "systemMessage": "You are an HR screening specialist. Create a comprehensive candidate screening questionnaire based on the job description and requirements.\n\n📝 **Create the following:**\n\n1. **Pre-screening Questions (5-7 questions):**\n   - Experience verification questions\n   - Key skill assessment questions  \n   - Availability and salary expectation questions\n   - Location/work preference questions\n\n2. **Technical Assessment Questions (3-5 questions):**\n   - Role-specific technical questions\n   - Scenario-based questions\n   - Problem-solving questions\n\n3. **Behavioral Questions (3-4 questions):**\n   - Culture fit questions\n   - Communication and teamwork scenarios\n   - Career motivation questions\n\n📋 **Format Requirements:**\n- Number each question clearly\n- Provide multiple choice options where appropriate\n- Include short answer and essay questions\n- Add scoring guidelines for each section\n- Include red flag indicators to watch for\n\n🎯 **Question Quality:**\n- Questions should be directly relevant to the role\n- Eliminate bias and ensure inclusivity\n- Focus on competencies, not just experience\n- Include questions that reveal problem-solving approach\n\nOutput a ready-to-use screening questionnaire that HR can implement immediately."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1020,
+        -20
+      ],
+      "id": "80deb851-fd09-4c73-b623-960ba63c2c51",
+      "name": "Screening Questions Generator"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1520,
+        380
+      ],
+      "id": "87434418-b3e7-41e5-af1e-33e2250c186e",
+      "name": "OpenAI Interview Guide Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "JN1FMiJ5lohK4kBr",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Job Requirements:\nJob Title:{{ $('Manual Job Requirements').item.json.jobTitle }}\nDepartment: {{ $('Manual Job Requirements').item.json.department }}\nExperience Level: {{ $('Manual Job Requirements').item.json.experienceLevel }}\nKey Skills: {{ $('Manual Job Requirements').item.json.keySkillsRequired }} \n\nScreening Questions: {{ $json.output }}",
+        "options": {
+          "systemMessage": "You are a senior HR manager and interview expert. Create a comprehensive interview guide for hiring managers based on the job requirements and screening questions.\n\n🎯 **Create a Complete Interview Guide:**\n\n**1. Interview Structure (60-90 minutes):**\n- Opening (5 min): Icebreaker and role overview\n- Experience Review (20 min): Deep dive into background\n- Technical Assessment (25 min): Role-specific questions\n- Behavioral Assessment (20 min): Culture fit and soft skills\n- Candidate Questions (10 min): Their questions for us\n- Closing (5 min): Next steps\n\n**2. Detailed Question Bank:**\n- 8-10 technical questions with follow-up probes\n- 6-8 behavioral questions using STAR method\n- 4-5 situational judgment questions\n- Red flag questions to identify potential issues\n\n**3. Evaluation Framework:**\n- Scoring rubric (1-5 scale) for each competency\n- Must-have vs. nice-to-have criteria\n- Decision framework (hire/no hire/maybe)\n- Reference check questions\n\n**4. Interview Best Practices:**\n- Tips for creating inclusive environment\n- How to probe for depth without leading\n- Warning signs to watch for\n- Legal considerations and what NOT to ask\n\n📋 **Output Format:**\nCreate a structured, professional interview guide that any hiring manager can follow to conduct consistent, effective interviews.\n\nMake it actionable with specific questions, timing, and evaluation criteria."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1380,
+        -20
+      ],
+      "id": "e86e62a2-96bd-4574-86e0-3931c61a70a2",
+      "name": "Interview Guide Generator"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"{{ $json.jobTitle }} salary trends {{ new Date().getFullYear() }} market rates recruitment\",\n  \"auto_parameters\": false,\n  \"topic\": \"general\",\n  \"search_depth\": \"basic\",\n  \"chunks_per_source\": 3,\n  \"max_results\": 3,\n  \"time_range\": null,\n  \"days\": 30,\n  \"include_answer\": true,\n  \"include_raw_content\": true,\n  \"include_images\": false,\n  \"include_image_descriptions\": false,\n  \"include_favicon\": false,\n  \"include_domains\": [],\n  \"exclude_domains\": [],\n  \"country\": null\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        380
+      ],
+      "id": "b2dae6af-ec7a-42f5-a6d6-552dc23bd225",
+      "name": "Market Research Tool"
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "jobTitle",
+              "stringValue": "Senior Software Engineer"
+            },
+            {
+              "name": "department",
+              "stringValue": "engineering"
+            },
+            {
+              "name": "experienceLevel",
+              "stringValue": "Senior Level (5-8 years)"
+            },
+            {
+              "name": "keySkillsRequired",
+              "stringValue": "Python, React, AWS, Docker, Kubernetes, RESTful APIs, Database design, Agile methodologies"
+            },
+            {
+              "name": "worklocation",
+              "stringValue": "hybrid"
+            },
+            {
+              "name": "budgetRange",
+              "stringValue": "$90,000 - $130,000"
+            },
+            {
+              "name": "urgencyLevel",
+              "stringValue": "High - Fill within 2 weeks"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        400,
+        80
+      ],
+      "id": "7bd46b41-f610-47c4-9490-7c6cecc453c7",
+      "name": "Manual Job Requirements"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        200,
+        0
+      ],
+      "id": "5027bfb1-847a-4bf4-8377-1e1c61cdc7b4",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Job Description Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Job Description Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Description Generator": {
+      "main": [
+        [
+          {
+            "node": "Screening Questions Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Screening Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Screening Questions Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Screening Questions Generator": {
+      "main": [
+        [
+          {
+            "node": "Interview Guide Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Interview Guide Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Interview Guide Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Interview Guide Generator": {
+      "main": [
+        []
+      ]
+    },
+    "Market Research Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Job Description Generator",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Job Requirements": {
+      "main": [
+        [
+          {
+            "node": "Job Description Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Manual Job Requirements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "986e7ede-ee4f-4649-90c6-b347a567ad41",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca458424d246ffe8eb59dc519d44cbe665eefc8f94b1412d794bb23c53d33fda"
+  },
+  "id": "Nz49FjhswpORr1rM",
+  "tags": []
+}
